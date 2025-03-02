@@ -1,7 +1,6 @@
 "use client"
 import { motion } from "framer-motion"
 // import { useTranslation } from "../components/language-provider"
-import { LanguageProvider } from "../components/LanguageProvider"
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CalendarClock, MapPin, BarChart3, BookOpen, HelpCircle, Search } from "lucide-react"
@@ -10,7 +9,7 @@ import Link from "next/link"
 import CountdownTimer from "../components/countdown-timer"
 import { useTranslation } from "../components/LanguageProvider"
 
-export default function landing() {
+export default function Landing() {
     const { t } = useTranslation()
 
     const features = [
