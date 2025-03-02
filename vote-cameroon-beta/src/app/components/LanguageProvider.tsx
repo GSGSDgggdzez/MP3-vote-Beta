@@ -18,7 +18,7 @@ const translations: Translations = {
   stations: { en: "Polling Stations", fr: "Bureaux de vote" },
   results: { en: "Results", fr: "Résultats" },
   education: { en: "Voter Education", fr: "Éducation électorale" },
-  support: { en: "Support", fr: "Assistance" },
+  // support: { en: "Support", fr: "Assistance" },
   
 
   // Home page
