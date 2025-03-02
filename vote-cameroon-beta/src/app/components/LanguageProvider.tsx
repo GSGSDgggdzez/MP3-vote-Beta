@@ -158,7 +158,7 @@ const translations: Translations = {
   },
 
   // Results page (updated and new translations)
-  electionResults: { en: "Election Results", fr: "Résultats des élections" },
+  electionResultsPage: { en: "Election Results", fr: "Résultats des élections" },
   latestResults: { en: "Latest Results", fr: "Derniers résultats" },
   resultsDescription: {
     en: "View the most up-to-date election results. Data is updated in real-time.",
@@ -199,7 +199,7 @@ const translations: Translations = {
   },
 
   // Voter Education page
-  voterEducation: { en: "Voter Education", fr: "Éducation électorale" },
+  voterEducationpage: { en: "Voter Education", fr: "Éducation électorale" },
   educationalResources: { en: "Educational Resources", fr: "Ressources éducatives" },
   searchResources: { en: "Search resources...", fr: "Rechercher des ressources..." },
   voterRegistration: { en: "Voter Registration Guide", fr: "Guide d'inscription des électeurs" },
