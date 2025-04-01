@@ -1,7 +1,7 @@
 import PocketBase from 'pocketbase';
 
 // Initialize PocketBase client
-const pb = new PocketBase('http://127.0.0.1:8090');
+const pb = new PocketBase('https://pocketmp3.fly.dev');
 
 // Export the client for direct use if needed
 export { pb };
