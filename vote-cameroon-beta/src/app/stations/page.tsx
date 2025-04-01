@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input"
 import { MapPin, Search, Navigation, Clock, Info, Phone } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import MapComponent from "../components/map-component"
 
 export default function StationsPage() {
   const { t } = useTranslation()
@@ -182,19 +181,7 @@ export default function StationsPage() {
                 <TabsTrigger value="details">{t("details")}</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="map" className="mt-0">
-                <Card>
-                  <CardContent className="p-0">
-                    <div className="h-[400px] rounded-md overflow-hidden">
-                      <MapComponent
-                        stations={stations}
-                        selectedStation={selectedStation}
-                        onStationSelect={handleStationSelect}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+            
 
               <TabsContent value="details" className="mt-0">
                 <Card>
