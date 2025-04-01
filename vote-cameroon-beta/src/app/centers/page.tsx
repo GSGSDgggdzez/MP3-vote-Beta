@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MapPin, Navigation, Clock, Info, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import MapComponent from "../components/map-component"
 import { getPollingStations, getAllPollingStations } from "@/lib/pocketbase"
 
 export default function CentersPage() {
