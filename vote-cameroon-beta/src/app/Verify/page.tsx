@@ -10,16 +10,53 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Camera, CheckCircle, XCircle, Loader2 } from "lucide-react"
+import { Camera, CheckCircle, XCircle, Loader2, MapPin, Clock, Users, Info } from "lucide-react"
 import { Toaster, toast } from 'sonner'
+import { verifyVoter, getPollingStation } from "@/lib/pocketbase"
+import Image from "next/image"
+
+interface VoterData {
+  id: string;
+  full_name: string;
+  national_id_number: string;
+  voter_card_number: string;
+  passport_id_number: string;
+  address: string;
+  voter_status: string;
+  polling_station_id: string;
+  expand?: {
+    polling_station_id?: PollingStationData
+  }
+}
+
+interface PollingStationData {
+  id: string;
+  collectionId: string;
+  collectionName: string;
+  station_name: string;
+  Region: string;
+  latitude_code: number;
+  longitude_code: number;
+  station_capacity: number;
+  station_status: string;
+  operating_hours: string;
+  city: string;
+  municipal: string;
+  picture_Url: string;
+  ward_number?: number;
+  created: string;
+  updated: string;
+}
 
 export default function VerifyPage() {
   const { t } = useTranslation()
   const [idType, setIdType] = useState("national")
   const [idNumber, setIdNumber] = useState("")
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+  const [voterData, setVoterData] = useState<VoterData | null>(null)
+  const [stationData, setStationData] = useState<PollingStationData | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!idNumber) {
       toast(t("errorTitle"), {
@@ -30,22 +67,81 @@ export default function VerifyPage() {
 
     setStatus("loading")
 
-    // Simulate API call
-    setTimeout(() => {
-      // For demo purposes, we'll consider even numbers as registered
-      if (Number.parseInt(idNumber) % 2 === 0) {
+    try {
+      // Verify the voter
+      const result = await verifyVoter(idType, idNumber)
+
+      if (result.success && result.data) {
+        setVoterData(result.data as unknown as VoterData)
+
+        // If polling station is not expanded, fetch it separately
+        if (!result.data.expand?.polling_station_id && result.data.polling_station_id) {
+          const stationResult = await getPollingStation(result.data.polling_station_id)
+          if (stationResult.success) {
+            setStationData(stationResult.data as unknown as PollingStationData)
+          }
+        }
+
         setStatus("success")
       } else {
         setStatus("error")
       }
-    }, 2000)
+    } catch (error) {
+      console.error("Error verifying voter:", error)
+      setStatus("error")
+    }
   }
-
   const openCamera = () => {
     toast(t("cameraTitle"), {
       description: t("cameraDesc")
     })
   }
+
+  // Get polling station info from either expanded data or separate fetch
+  const getPollingInfo = () => {
+    if (voterData?.expand?.polling_station_id) {
+      return voterData.expand.polling_station_id
+    }
+    return stationData
+  }
+
+  const pollingInfo = getPollingInfo()
+
+  // Format operating hours if available
+  const formatOperatingHours = (hours: any) => {
+    if (!hours) return "N/A";
+    try {
+      if (typeof hours === 'string') {
+        hours = JSON.parse(hours);
+      }
+      return `${hours.open || "7:00 AM"} - ${hours.close || "6:00 PM"}`;
+    } catch (e) {
+      return "7:00 AM - 6:00 PM";
+    }
+  };
+
+  // Open Google Maps with the polling station location
+  const openMaps = () => {
+    if (pollingInfo?.latitude_code && pollingInfo?.longitude_code) {
+      window.open(`https://www.google.com/maps?q=${pollingInfo.latitude_code},${pollingInfo.longitude_code}`, '_blank');
+    } else {
+      toast(t("locationNotAvailable"), {
+        description: t("locationNotAvailableDesc")
+      });
+    }
+  };
+
+  // Get directions to polling station
+  const getDirections = () => {
+    if (pollingInfo?.latitude_code && pollingInfo?.longitude_code) {
+      // Use Google Maps directions API
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${pollingInfo.latitude_code},${pollingInfo.longitude_code}`, '_blank');
+    } else {
+      toast(t("locationNotAvailable"), {
+        description: t("locationNotAvailableDesc")
+      });
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -77,7 +173,8 @@ export default function VerifyPage() {
                         <RadioGroupItem value="passport" id="passport" className="text-green-700 border-green-700 focus:ring-green-700" />
                         <Label htmlFor="passport">{t("passport")}</Label>
                       </div>
-                    </RadioGroup>                  </div>
+                    </RadioGroup>
+                  </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="idNumber">{t("idNumber")}</Label>
@@ -111,11 +208,12 @@ export default function VerifyPage() {
           </Card>
 
           <div>
-            {status === "success" && (
+            {status === "success" && voterData && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                className="space-y-6"
               >
                 <Card className="bg-green-50 border-green-200">
                   <CardHeader>
@@ -130,29 +228,102 @@ export default function VerifyPage() {
                       <h3 className="font-medium text-green-800 mb-2">{t("yourDetails")}</h3>
                       <div className="space-y-1 text-sm">
                         <p>
-                          <span className="font-medium">{t("name")}:</span> John Doe
+                          <span className="font-medium">{t("name")}:</span> {voterData.full_name}
                         </p>
                         <p>
-                          <span className="font-medium">{t("pollingStation")}:</span> Central School, Yaoundé
+                          <span className="font-medium">{t("voterStatus")}:</span> {voterData.voter_status}
                         </p>
-                        <p>
-                          <span className="font-medium">{t("ward")}:</span> Ward 5
-                        </p>
-                        <p>
-                          <span className="font-medium">{t("constituency")}:</span> Yaoundé Central
-                        </p>
+                        {pollingInfo && (
+                          <p>
+                            <span className="font-medium">{t("pollingStation")}:</span> {pollingInfo.station_name}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </CardContent>
-                  <CardFooter>
-                    <Button variant="outline" className="w-full">
-                      {t("downloadDetails")}
-                    </Button>
-                  </CardFooter>
                 </Card>
+
+                {pollingInfo && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <Card className="overflow-hidden">
+                      <div className="relative h-48 w-full">
+                        {pollingInfo.picture_Url ? (
+                          <img
+                            src={pollingInfo.picture_Url}
+                            alt={pollingInfo.station_name}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <div className="bg-gray-200 w-full h-full flex items-center justify-center">
+                            <MapPin className="h-12 w-12 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                      <CardHeader>
+                        <CardTitle>{pollingInfo.station_name}</CardTitle>
+                        <CardDescription>
+                          {pollingInfo.Region}, {pollingInfo.city}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          <div className="flex items-start space-x-2">
+                            <MapPin className="h-5 w-5 text-green-700 mt-0.5" />
+                            <div>
+                              <p className="font-medium">{t("location")}</p>
+                              <p className="text-sm text-gray-600">{`${pollingInfo.municipal}, ${pollingInfo.city}`}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start space-x-2">
+                            <Clock className="h-5 w-5 text-green-700 mt-0.5" />
+                            <div>
+                              <p className="font-medium">{t("operatingHours")}</p>
+                              <p className="text-sm text-gray-600">{formatOperatingHours(pollingInfo.operating_hours)}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start space-x-2">
+                            <Users className="h-5 w-5 text-green-700 mt-0.5" />
+                            <div>
+                              <p className="font-medium">{t("capacity")}</p>
+                              <p className="text-sm text-gray-600">{pollingInfo.station_capacity || "N/A"} {t("voters")}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start space-x-2">
+                            <Info className="h-5 w-5 text-green-700 mt-0.5" />
+                            <div>
+                              <p className="font-medium">{t("stationStatus")}</p>
+                              <p className="text-sm text-gray-600">
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${pollingInfo.station_status === 'Active'
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-yellow-100 text-yellow-800'
+                                  }`}>
+                                  {pollingInfo.station_status}
+                                </span>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex justify-between">
+                        <Button variant="outline" onClick={openMaps}>
+                          {t("viewOnMap")}
+                        </Button>
+                        <Button className="bg-green-700 hover:bg-green-600" onClick={getDirections}>
+                          {t("getDirections")}
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  </motion.div>
+                )}
               </motion.div>
             )}
-
             {status === "error" && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -170,47 +341,18 @@ export default function VerifyPage() {
                     <p>{t("notRegisteredDesc")}</p>
                     <div className="mt-4 p-4 bg-white rounded-md border border-red-200">
                       <h3 className="font-medium text-red-800 mb-2">{t("nextSteps")}</h3>
-                      <ul className="list-disc list-inside space-y-1 text-sm">
-                        <li>{t("visitOffice")}</li>
+                      <ul className="list-disc list-inside">
                         <li>{t("bringDocuments")}</li>
                         <li>{t("checkDeadlines")}</li>
                       </ul>
                     </div>
                   </CardContent>
-                  <CardFooter className="flex flex-col space-y-2">
-                    <Button className="w-full bg-red-600 hover:bg-red-700">{t("registerNow")}</Button>
-                    <Button variant="outline" className="w-full">
-                      {t("learnMore")}
-                    </Button>
-                  </CardFooter>
                 </Card>
               </motion.div>
-            )}
-
-            {status === "idle" && (
-              <div className="flex flex-col items-center justify-center h-full p-8 text-center text-gray-500 border-2 border-dashed rounded-lg">
-                <div className="mb-4">
-                  <svg
-                    className="w-16 h-16 mx-auto text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                </div>
-                <p className="text-lg font-medium">{t("enterDetailsPrompt")}</p>
-                <p className="mt-1">{t("resultsWillAppear")}</p>
-              </div>
             )}
           </div>
         </div>
       </motion.div>
     </div>
   )
-}
+  }

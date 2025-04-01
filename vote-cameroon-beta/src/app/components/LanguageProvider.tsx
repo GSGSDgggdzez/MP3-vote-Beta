@@ -263,6 +263,46 @@ const translations: Translations = {
   },
   helplineNumber: { en: "Helpline Number", fr: "Numéro d'assistance" },
   contactSupport: { en: "Contact Support", fr: "Contacter le support" },
+
+
+  selectLocation: { 
+    en: "Select Location", 
+    fr: "Sélectionner un emplacement" 
+  },
+  selectLocationDesc: { 
+    en: "Please select your region, city and municipality", 
+    fr: "Veuillez sélectionner votre région, ville et municipalité" 
+  },
+  region: { 
+    en: "Region", 
+    fr: "Région" 
+  },
+
+  city: { 
+    en: "City", 
+    fr: "Ville" 
+  },
+  selectCity: { 
+    en: "Select a city", 
+    fr: "Sélectionner une ville" 
+  },
+
+  municipality: { 
+    en: "Municipality", 
+    fr: "Municipalité" 
+  },
+  selectMunicipality: { 
+    en: "Select a municipality", 
+    fr: "Sélectionner une municipalité" 
+  },
+  availableCenters: { 
+    en: "Available Centers", 
+    fr: "Centres disponibles" 
+  },
+  centerDetails: { 
+    en: "Center Details", 
+    fr: "Détails du centre" 
+  },
 }
 
 type LanguageContextType = {
