@@ -250,21 +250,6 @@ export default function VerifyPage() {
                     transition={{ delay: 0.2 }}
                   >
                     <Card className="overflow-hidden">
-                      <div className="relative h-48 w-full">
-                        {pollingInfo.picture_Url ? (
-                          <Image
-                            src={pollingInfo.picture_Url}
-                            alt={pollingInfo.station_name}
-                            className="object-cover w-full h-full"
-                            width={800}
-                            height={400}
-                          />
-                        ) : (
-                          <div className="bg-gray-200 w-full h-full flex items-center justify-center">
-                            <MapPin className="h-12 w-12 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
                       <CardHeader>
                         <CardTitle>{pollingInfo.station_name}</CardTitle>
                         <CardDescription>
@@ -321,8 +306,7 @@ export default function VerifyPage() {
                           {t("getDirections")}
                         </Button>
                       </CardFooter>
-                    </Card>
-                  </motion.div>
+                    </Card>                  </motion.div>
                 )}
               </motion.div>
             )}
