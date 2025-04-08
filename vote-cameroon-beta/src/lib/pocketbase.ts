@@ -92,3 +92,31 @@ export async function verifyVoter(idType: string, idNumber: string) {
     return { success: false, error };
   }
 }
+
+export async function authenticateScrutineer(email: string, password: string) {
+  try {
+    const authData = await pb.collection('scrutineers').authWithPassword(email, password);
+    return { success: true, data: authData };
+  } catch (error) {
+    console.error('Error authenticating scrutineer:', error);
+    return { success: false, error };
+  }
+}
+
+// Check if a scrutineer is authenticated
+export function isScrutineerAuthenticated() {
+  return pb.authStore.isValid && pb.authStore.model?.collectionName === 'scrutineers';
+}
+
+// Logout a scrutineer
+export function logoutScrutineer() {
+  pb.authStore.clear();
+}
+
+// Get current scrutineer data
+export function getCurrentScrutineer() {
+  if (isScrutineerAuthenticated()) {
+    return pb.authStore.model;
+  }
+  return null;
+}

@@ -248,19 +248,6 @@ export default function CentersPage() {
                             transition={{ delay: 0.2 }}
                           >
                             <Card className="overflow-hidden">
-                              <div className="relative h-48 w-full">
-                                {center.picture_Url ? (
-                                  <img
-                                    src={center.picture_Url}
-                                    alt={center.station_name}
-                                    className="object-cover w-full h-full"
-                                  />
-                                ) : (
-                                  <div className="bg-gray-200 w-full h-full flex items-center justify-center">
-                                    <MapPin className="h-12 w-12 text-gray-400" />
-                                  </div>
-                                )}
-                              </div>
                               <CardHeader>
                                 <CardTitle>{center.station_name}</CardTitle>
                                 <CardDescription>
@@ -310,8 +297,7 @@ export default function CentersPage() {
                                   </div>
                                 </div>
                               </CardContent>
-                            </Card>
-                          </motion.div>
+                            </Card>                          </motion.div>
                           <Button className="w-full sm:w-auto">
                             <Navigation className="mr-2 h-4 w-4" />
                             {t("getDirections")}

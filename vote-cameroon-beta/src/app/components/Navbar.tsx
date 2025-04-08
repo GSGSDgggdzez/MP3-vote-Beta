@@ -6,12 +6,13 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useTranslation } from "./LanguageProvider";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Globe } from "lucide-react";
+import { Menu, X, Globe, ClipboardCheck } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 export default function Navbar() {
@@ -68,6 +69,13 @@ export default function Navbar() {
 
           {/* Right Icons */}
           <div className="flex items-center space-x-2">
+            {/* Scrutineer Portal Link */}
+            <Link href="/scrutineer/auth">
+              <Button variant="ghost" size="icon" className="text-white hover:bg-green-700" title="Scrutineer Portal">
+                <ClipboardCheck className="h-5 w-5" />
+              </Button>
+            </Link>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="text-white hover:bg-green-700">
@@ -117,6 +125,17 @@ export default function Navbar() {
                 {item.label}
               </Link>
             ))}
+            
+            {/* Scrutineer Link in Mobile Menu */}
+            <DropdownMenuSeparator className="my-1 border-green-700" />
+            <Link
+              href="/scrutineer/auth"
+              className="block px-3 py-2 text-base font-medium text-white hover:bg-green-700 rounded-md flex items-center"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <ClipboardCheck className="h-4 w-4 mr-2" />
+              Scrutineer Portal
+            </Link>
           </div>
         </motion.div>
       )}
